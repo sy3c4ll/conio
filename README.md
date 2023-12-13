@@ -26,6 +26,25 @@ macros to give you debugging nightmares, no weird symbol names, no nonsense.
 
 Have fun.
 
+## How to use
+
+The most obvious way would be to copy over `conio.h` and `conio.cpp`, and
+compile them within your project as if they were your own. I shan't bore you
+with specifics, but resources on how to structure and build your project should
+be abundant upon the Web.
+
+_I highly recommend **against** combining the two files for a single import._
+This loses the benefits of a secluded, sanitised environment the simple header
+file provides.
+
+Alternatively, you could compile `conio.cpp` into a separate static or dynamic
+library, include `conio.h` in your source files then link the library after. If
+this option came to your mind, I'm sure I don't need to guide you through it.
+
+Remember to qualify the name! Use either `conio::foo`, or just `foo` after
+`using conio::foo`. You can use `using namespace conio` if you want to forget
+about namespaces and use the library as a drop-in replacement for `conio.h`.
+
 ## Implemented
 
 - `getch`
@@ -46,41 +65,22 @@ Have fun.
 Using this library provides you with the following benefits (over using your
 stock `conio.h`):
 
-- Cross-platform
-  All functions are implemented for UNIX-derivative systems as well.
-- Extensive
-  Well not really, but at least it has `clrscr`...
-- Uniform
-  You don't know what functions you get with stray `conio.h` implementations.
-  This library takes the lowest common denominator and implements everything
-  else.
-- Clean
-  No unnecessary symbols, no hidden `#define`s. You know how bad those can
-  screw over your debugging sessions.
-- Modern
-  All functions are placed under the namespace `conio`, preventing name clashes.
-- Single-file
-  All these benefits can be gained without installing or bundling massive
-  codebases, by just copy-pasting two files!
-
-## How to use
-
-The most obvious way would be to copy over `conio.h` and `conio.cpp`, and
-compile them within your project as if they were your own. I shan't bore you
-with specifics, but resources on how to structure and build your project should
-be abundant upon the Web.
-
-_I highly recommend **against** combining the two files for a single import._
-This loses the benefits of a secluded, sanitised environment the simple header
-file provides.
-
-Alternatively, you could compile `conio.cpp` into a separate static or dynamic
-library, include `conio.h` in your source files then link the library after. If
-this option came to your mind, I'm sure I don't need to guide you through it.
-
-Remember to qualify the name! Use either `conio::foo`, or just `foo` after
-`using conio::foo`. You can use `using namespace conio` if you want to forget
-about namespaces and use the library as a drop-in replacement for `conio.h`.
+- **Cross-platform**
+All functions are implemented for UNIX-derivative systems as well.
+- **Extensive**
+Well not really, but at least it has `clrscr`...
+- **Uniform**
+You don't know what functions you get with stray `conio.h` implementations.
+This library takes the lowest common denominator and implements everything
+else.
+- **Clean**
+No unnecessary symbols, no hidden `#define`s. You know how bad those can screw
+over your debugging sessions.
+- **Modern**
+All functions are placed under the namespace `conio`, preventing name clashes.
+- **Single-file**
+All these benefits can be gained without installing or bundling massive
+codebases, by just copy-pasting two files!
 
 ## How it works
 
