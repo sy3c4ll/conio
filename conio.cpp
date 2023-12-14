@@ -69,76 +69,98 @@ void textbackground(int color) {
 #include <termios.h>
 #include <unistd.h>
 
-inline void _enable_canon() {
-  struct termios attr;
-  tcgetattr(STDIN_FILENO, &attr);
-  attr.c_lflag |= ICANON;
-  tcsetattr(STDIN_FILENO, TCSANOW, &attr);
+struct termios* _normal_attr() {
+  static struct termios attr;
+  static int init = 0;
+
+  if (!init) {
+    tcgetattr(STDIN_FILENO, &attr);
+    init = 1;
+  }
+
+  return &attr;
 }
-inline void _enable_echo() {
-  struct termios attr;
-  tcgetattr(STDIN_FILENO, &attr);
-  attr.c_lflag |= ECHO;
-  tcsetattr(STDIN_FILENO, TCSANOW, &attr);
+struct termios* _getch_attr() {
+  static struct termios attr;
+  static int init = 0;
+
+  if (!init) {
+    attr = *_normal_attr();
+    attr.c_lflag &= ~(ICANON | ECHO);
+    init = 1;
+  }
+
+  return &attr;
 }
-inline void _enable_block() {
-  int fl = fcntl(STDIN_FILENO, F_GETFL);
-  fcntl(STDIN_FILENO, F_SETFL, fl & ~O_NONBLOCK);
+struct termios* _getche_attr() {
+  static struct termios attr;
+  static int init = 0;
+
+  if (!init) {
+    attr = *_normal_attr();
+    attr.c_lflag &= ~ICANON;
+    init = 1;
+  }
+
+  return &attr;
 }
-inline void _disable_canon() {
-  struct termios attr;
-  tcgetattr(STDIN_FILENO, &attr);
-  attr.c_lflag &= ~ICANON;
-  tcsetattr(STDIN_FILENO, TCSANOW, &attr);
+int _normal_fl() {
+  static int fl;
+  static int init = 0;
+
+  if (!init) {
+    fl = fcntl(STDIN_FILENO, F_GETFL);
+    init = 1;
+  }
+
+  return fl;
 }
-inline void _disable_echo() {
-  struct termios attr;
-  tcgetattr(STDIN_FILENO, &attr);
-  attr.c_lflag &= ~ECHO;
-  tcsetattr(STDIN_FILENO, TCSANOW, &attr);
+int _kbhit_fl() {
+  static int fl;
+  static int init = 0;
+
+  if (!init) {
+    fl = _normal_fl() | O_NONBLOCK;
+    init = 1;
+  }
+
+  return fl;
 }
-inline void _disable_block() {
-  int fl = fcntl(STDIN_FILENO, F_GETFL);
-  fcntl(STDIN_FILENO, F_SETFL, fl | O_NONBLOCK);
+
+inline void _normal_mode() {
+  tcsetattr(STDIN_FILENO, TCSANOW, _normal_attr());
+  fcntl(STDIN_FILENO, F_SETFL, _normal_fl());
+}
+inline void _getch_mode() {
+  tcsetattr(STDIN_FILENO, TCSANOW, _getch_attr());
+}
+inline void _getche_mode() {
+  tcsetattr(STDIN_FILENO, TCSANOW, _getche_attr());
+}
+inline void _kbhit_mode() {
+  tcsetattr(STDIN_FILENO, TCSANOW, _getch_attr());
+  fcntl(STDIN_FILENO, F_SETFL, _kbhit_fl());
 }
 
 namespace conio {
 int getch() {
-  _disable_canon();
-  _disable_echo();
-  _enable_block();
-
+  _getch_mode();
   int ch = getchar();
-
-  _enable_canon();
-  _enable_echo();
-
+  _normal_mode();
   return ch;
 }
 int getche() {
-  _disable_canon();
-  _enable_echo();
-  _enable_block();
-
+  _getche_mode();
   int ch = getchar();
-
-  _enable_canon();
-
+  _normal_mode();
   return ch;
 }
 int kbhit() {
-  _disable_canon();
-  _disable_echo();
-  _disable_block();
-
+  _kbhit_mode();
   int ch = getchar();
-
-  _enable_canon();
-  _enable_echo();
-  _enable_block();
-
   if (ch != EOF)
     ungetc(ch, stdin);
+  _normal_mode();
   return ch != EOF;
 }
 int putch(int ch) {
@@ -156,31 +178,19 @@ void clreol() {
 }
 
 int wherex() {
-  _disable_canon();
-  _disable_echo();
-  _enable_block();
-
   int x;
+  _getch_mode();
   printf("\e[6n");
   scanf("\e[%*d;%dR", &x);
-
-  _enable_canon();
-  _enable_echo();
-
+  _normal_mode();
   return x - 1;
 }
 int wherey() {
-  _disable_canon();
-  _disable_echo();
-  _enable_block();
-
   int y;
+  _getch_mode();
   printf("\e[6n");
   scanf("\e[%d;%*dR", &y);
-
-  _enable_canon();
-  _enable_echo();
-
+  _normal_mode();
   return y - 1;
 }
 void gotoxy(int x, int y) {

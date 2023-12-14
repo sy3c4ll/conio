@@ -66,21 +66,21 @@ Using this library provides you with the following benefits (over using your
 stock `conio.h`):
 
 - **Cross-platform**
-All functions are implemented for UNIX-derivative systems as well.
+  All functions are implemented for UNIX-derivative systems as well.
 - **Extensive**
-Well not really, but at least it has `clrscr`...
+  Well not really, but at least it has `clrscr`...
 - **Uniform**
-You don't know what functions you get with stray `conio.h` implementations.
-This library takes the lowest common denominator and implements everything
-else.
+  You don't know what functions you get with stray `conio.h` implementations.
+  This library takes the lowest common denominator and implements everything
+  else.
 - **Clean**
-No unnecessary symbols, no hidden `#define`s. You know how bad those can screw
-over your debugging sessions.
+  No unnecessary symbols, no hidden `#define`s. You know how bad those can screw
+  over your debugging sessions.
 - **Modern**
-All functions are placed under the namespace `conio`, preventing name clashes.
+  All functions are placed under the namespace `conio`, preventing name clashes.
 - **Single-file**
-All these benefits can be gained without installing or bundling massive
-codebases, by just copy-pasting two files!
+  All these benefits can be gained without installing or bundling massive
+  codebases, by just copy-pasting two files!
 
 ## How it works
 
@@ -113,8 +113,8 @@ for `kbhit`.
 
 ## Known issues
 
-- [ ] Rapid consecutive calls to `getch` or `kbhit` can reveal input on UNIX
-  systems, possibly because calls to `tcsetattr` are slow
+- [x] Rapid consecutive calls to `getch` or `kbhit` can reveal input on UNIX
+  systems, possibly because calls to `tcgetattr` are slow
 
 ## (Un)license
 
